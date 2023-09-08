@@ -1,24 +1,26 @@
-// const { Telegraf } = require('telegraf');
-// const { message } = require('telegraf/filters');
+require('dotenv').config()
+const TelegramBot = require('node-telegram-bot-api');
 
-const token = '5898941434:AAH9YwrSrbadYPMcm6JVdSECV_v3lVOBL8I'
-// const bot = new Telegraf(token);
+const token = process.env.TOKEN
 
-// bot.start((ctx) => ctx.reply('Welcome'));
-// bot.help((ctx) => ctx.reply('Send me a sticker'));
-// bot.on(message('sticker'), (ctx) => ctx.reply('👍'));
-// bot.hears('hi', (ctx) => ctx.reply('Hey there'));
-// bot.launch();
+console.log(token);
 
-// // Enable graceful stop
-// process.once('SIGINT', () => bot.stop('SIGINT'));
-// process.once('SIGTERM', () => bot.stop('SIGTERM'));
+const bot = new TelegramBot(token, {
+  polling: true
+});
+
+let chatId = ''
+
+bot.on('text', async msg => {
+  console.log(msg);
+  chatId = msg.chat.id
+})
 
 //===================================================
 
 const express = require('express');
+const https = require('https')
 const cors = require('cors')
-// const { DateTime } = require("luxon");
 
 const app = express();
 app.use(express.json())
@@ -37,54 +39,92 @@ app.get('/get', function(req, res) {
   });
 })
 
-async function sendMessage(task) {
-  // https://api.telegram.org/bot<token>/METHOD_NAME
+// async function sendMessage(task) {
+//   // https://api.telegram.org/bot<token>/METHOD_NAME
 
-  let response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8'
-        },
-        body: JSON.stringify({
-          chat_id: '@ToDoDayNotification',
-          text: task.value
-        })
-      });
+//   let response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json;charset=utf-8'
+//         },
+//         body: JSON.stringify({
+//           chat_id: '@ToDoDayNotification',
+//           text: task.value
+//         })
+//       });
       
-      let result = await response.json();
-      console.log(result)
-}
+//       let result = await response.json();
+//       console.log(result)
+// }
 
 let intervalId = null
+
+let days = []
+let today = null
+let modifyDate = null
+
+app.get('/getDays', function(req, res) {
+	res.json({
+    "success" : true,
+    "data": days
+  });
+})
 
 app.post('/setDays', async function(req, res) {
 	res.json({
     "success" : true
   });
-
   clearInterval(intervalId)
 
-  const today = req.body[0].value
+  days = req.body
+  today = days[0]
 
   intervalId = setInterval(() => {
+    const currentDate = new Date().getDate()
     const currentHours = new Date().getHours()
     const currentMinutes = new Date().getMinutes()
   
-    for (const task of today) {
+    for (const task of today.tasks) {
       if (currentHours === getHours(task.time) && currentMinutes === getMinutes(task.time)) {
-        sendMessage(task)
+
+        if (chatId) {
+          bot.sendMessage(chatId, task.value);
+        }
       }
     }
-  }, 60000);
+
+    if (currentDate !== modifyDate && currentHours === 23 && currentMinutes === 59) {
+      modifyDate = currentDate
+
+      const pastDay = days.shift()
+      days.push(pastDay)
+
+      today = days[0]
+    }
+  }, 59999);
 
 
   function getHours(time) {
+    if (!time) return null
     return parseInt(time.split(':')[0])
   }
   function getMinutes(time) {
+    if (!time) return null
     return parseInt(time.split(':')[1])
   }
 })
+
+// const key = fs.readFileSync('encryption/private.key');
+// const cert = fs.readFileSync( 'encryption/primary.crt' );
+// const ca = fs.readFileSync( 'encryption/intermediate.crt' );
+
+// const options = {
+//   key: key,
+//   cert: cert,
+//   ca: ca
+// };
+
+// https.createServer(options, app).listen(443);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, function(){
