@@ -114,6 +114,22 @@ app.post('/setDays', async function(req, res) {
   }
 })
 
+let tasks = []
+
+app.post('/setTasks', async function(req, res) {
+	res.json({
+    "success" : true
+  });
+
+  tasks = req.body
+})
+app.get('/getTasks', async function(req, res) {
+	res.json({
+    "success" : true,
+    "data": tasks
+  });
+})
+
 // const key = fs.readFileSync('encryption/private.key');
 // const cert = fs.readFileSync( 'encryption/primary.crt' );
 // const ca = fs.readFileSync( 'encryption/intermediate.crt' );
