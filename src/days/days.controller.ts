@@ -24,14 +24,14 @@ export class DaysController {
     return this.daysService.setList(req.query.userId, days);
   }
 
-  @Post('setTimeTask')
-  async setTimeTask(@Req() req, @Body() { dayId, taskId, time }) {
-    return this.daysService.setTimeTask(req.query.userId, dayId, taskId, time);
+  @Post('setTaskTime')
+  async setTaskTime(@Req() req, @Body() { dayId, taskId, time }) {
+    return this.daysService.setTaskTime(req.query.userId, dayId, taskId, time);
   }
 
-  @Post('setDoneTask')
-  async setDoneTask(@Req() req, @Body() { dayId, taskId, checked }) {
-    return this.daysService.setDoneTask(
+  @Post('setTaskDone')
+  async setTaskDone(@Req() req, @Body() { dayId, taskId, checked }) {
+    return this.daysService.setTaskDone(
       req.query.userId,
       dayId,
       taskId,

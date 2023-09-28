@@ -66,7 +66,7 @@ export class DaysService {
     // res.status(HttpStatus.CREATED).send();
   }
 
-  async setTimeTask(userId, dayId, taskId, time) {
+  async setTaskTime(userId, dayId, taskId, time) {
     let days = null;
 
     try {
@@ -93,10 +93,10 @@ export class DaysService {
     }
     // --------
 
-    return 'setTimeTask';
+    return 'setTaskTime';
   }
 
-  async setDoneTask(userId, dayId, taskId, checked) {
+  async setTaskDone(userId, dayId, taskId, checked) {
     let days = null;
 
     try {
@@ -122,6 +122,6 @@ export class DaysService {
       throw new Error(error);
     }
     // --------
-    return 'setDoneTask';
+    return 'setTaskDone';
   }
 }
