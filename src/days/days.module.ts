@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { DaysService } from './days.service';
 import { DaysController } from './days.controller';
+import { FirebaseService } from '../firebase/firebase.service';
 
 @Module({
   controllers: [DaysController],
-  providers: [DaysService],
+  providers: [DaysService, FirebaseService],
 })
 export class DaysModule {}

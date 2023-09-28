@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DaysModule } from './days/days.module';
 import { TasksModule } from './tasks/tasks.module';
+import { FirebaseService } from './firebase/firebase.service';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { TasksModule } from './tasks/tasks.module';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, FirebaseService],
 })
 export class AppModule {}
