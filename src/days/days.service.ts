@@ -3,65 +3,19 @@ import { FirebaseService } from '../firebase/firebase.service';
 
 const chatId = '';
 const intervals = {};
+
 @Injectable()
 export class DaysService {
   constructor(private readonly firebaseService: FirebaseService) {}
 
   async getList(userId) {
-    return this.firebaseService.read(userId, 'days');
+    return await this.firebaseService.read(userId, 'days');
   }
 
-  setList(userId, days) {
-    let lastMovedDate = null;
-    let today = days[0];
+  async setList(userId, days) {
+    await this.firebaseService.write(userId, 'days', days);
 
-    clearInterval(intervals[userId]);
-
-    intervals[userId] = setInterval(() => {
-      const currentDate = new Date().getDate();
-      const currentHours = new Date().getHours();
-      const currentMinutes = new Date().getMinutes();
-
-      // Уведомление о запланированной задаче
-      for (const task of today.tasks) {
-        if (
-          currentHours === getHours(task.time) &&
-          currentMinutes === getMinutes(task.time)
-        ) {
-          if (chatId) {
-            // bot.sendMessage(chatId, task.value);
-          }
-        }
-      }
-
-      // Перенос прошедшего дня в конец
-      if (
-        currentDate !== lastMovedDate &&
-        currentHours === 23 &&
-        currentMinutes === 59
-      ) {
-        lastMovedDate = currentDate;
-
-        const pastDay = days.shift();
-        days.push(pastDay);
-
-        today = days[0];
-
-        this.firebaseService.write(userId, 'days', days);
-      }
-    }, 59999);
-
-    return this.firebaseService.write(userId, 'days', days);
-
-    function getHours(time) {
-      if (!time) return null;
-      return parseInt(time.split(':')[0]);
-    }
-    function getMinutes(time) {
-      if (!time) return null;
-      return parseInt(time.split(':')[1]);
-    }
-
+    this.scheduler(userId);
     // return days;
     // res.status(HttpStatus.CREATED).send();
   }
@@ -71,11 +25,12 @@ export class DaysService {
 
     try {
       // 1. GET DAYS
-      days = this.firebaseService.read(userId, 'days');
+      days = await this.firebaseService.read(userId, 'days');
+      if (!days.length) return;
 
       // 2. SET TIME TO TASK
       days.forEach((day) => {
-        if (dayId === day._id) {
+        if (day._id === dayId) {
           day.tasks.forEach((task) => {
             if (task._id === taskId) {
               task.time = time;
@@ -83,7 +38,6 @@ export class DaysService {
           });
         }
       });
-      // -------
 
       // 3. SET DAYS
       this.firebaseService.write(userId, 'days', days);
@@ -91,9 +45,6 @@ export class DaysService {
       console.error(error);
       throw new Error(error);
     }
-    // --------
-
-    return 'setTaskTime';
   }
 
   async setTaskDone(userId, dayId, taskId, checked) {
@@ -101,11 +52,12 @@ export class DaysService {
 
     try {
       // 1. GET DAYS
-      days = this.firebaseService.read(userId, 'days');
+      days = await this.firebaseService.read(userId, 'days');
+      if (!days.length) return;
 
       // 2. SET CHECKED TO TASK
       days.forEach((day) => {
-        if (dayId === day._id) {
+        if (day._id === dayId) {
           day.tasks.forEach((task) => {
             if (task._id === taskId) {
               task.checked = checked;
@@ -113,7 +65,6 @@ export class DaysService {
           });
         }
       });
-      // -------
 
       // 3. SET DAYS
       this.firebaseService.write(userId, 'days', days);
@@ -121,7 +72,55 @@ export class DaysService {
       console.error(error);
       throw new Error(error);
     }
-    // --------
-    return 'setTaskDone';
+  }
+
+  async scheduler(userId) {
+    let lastMovedDate = null;
+    const days = await this.firebaseService.read(userId, 'days');
+    const today = days[0];
+
+    clearInterval(intervals[userId]);
+
+    intervals[userId] = setInterval(() => {
+      const currentDate = new Date().getDate();
+      const currentHours = new Date().getHours();
+      const currentMinutes = new Date().getMinutes();
+
+      // Уведомление о запланированной задаче
+      if (chatId && today?.tasks?.length) {
+        for (const task of today.tasks) {
+          if (
+            currentHours === getHours(task.time) &&
+            currentMinutes === getMinutes(task.time)
+          ) {
+            // bot.sendMessage(chatId, task.value);
+          }
+        }
+      }
+
+      // Перенос прошедшего дня в конец
+      if (
+        days.length > 1 &&
+        currentDate !== lastMovedDate &&
+        currentHours === 23 &&
+        currentMinutes === 59
+      ) {
+        lastMovedDate = currentDate;
+
+        const pastDay = days.shift();
+        days.push(pastDay);
+
+        this.firebaseService.write(userId, 'days', days);
+      }
+    }, 59999);
+
+    function getHours(time) {
+      if (!time) return null;
+      return parseInt(time.split(':')[0]);
+    }
+    function getMinutes(time) {
+      if (!time) return null;
+      return parseInt(time.split(':')[1]);
+    }
   }
 }
