@@ -20,7 +20,7 @@ export class DaysService {
     // res.status(HttpStatus.CREATED).send();
   }
 
-  async setTaskTime(userId, dayId, taskId, time) {
+  async setTaskTime(userId, dayId, taskUniqId, time) {
     let days = null;
 
     try {
@@ -32,7 +32,7 @@ export class DaysService {
       days.forEach((day) => {
         if (day._id === dayId) {
           day.tasks.forEach((task) => {
-            if (task._id === taskId) {
+            if (task._uniqId === taskUniqId) {
               task.time = time;
             }
           });
@@ -47,7 +47,7 @@ export class DaysService {
     }
   }
 
-  async setTaskDone(userId, dayId, taskId, checked) {
+  async setTaskDone(userId, dayId, taskUniqId, checked) {
     let days = null;
 
     try {
@@ -59,7 +59,7 @@ export class DaysService {
       days.forEach((day) => {
         if (day._id === dayId) {
           day.tasks.forEach((task) => {
-            if (task._id === taskId) {
+            if (task._uniqId === taskUniqId) {
               task.checked = checked;
             }
           });
