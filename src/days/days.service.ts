@@ -81,6 +81,7 @@ export class DaysService {
 
   async scheduler(userId) {
     let lastMovedDate = null;
+    let timeLastMessage = null;
     const days = await this.firebaseService.read(userId, 'days');
     const today = days[0];
 
@@ -92,14 +93,21 @@ export class DaysService {
       const currentMinutes = new Date().getMinutes();
 
       // Уведомление о запланированной задаче
-      if (today?.tasks?.length) {
+      if (
+        today?.tasks?.length &&
+        !(
+          currentHours === getHours(timeLastMessage.time) &&
+          currentMinutes === getMinutes(timeLastMessage.time)
+        )
+      ) {
         for (const task of today.tasks) {
           if (
             currentHours === getHours(task.time) &&
             currentMinutes === getMinutes(task.time)
           ) {
             // bot.sendMessage(chatId, task.value);
-            this.botService.sendMessage(task.value); // сделать проверку что сообщение уже было отправлено
+            timeLastMessage = task.time;
+            this.botService.sendMessage(task.value);
           }
         }
       }
