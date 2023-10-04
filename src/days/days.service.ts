@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { FirebaseService } from '../firebase/firebase.service';
+import { BotService } from '../bot/bot.service';
 
-const chatId = '';
 const intervals = {};
 
 @Injectable()
 export class DaysService {
-  constructor(private readonly firebaseService: FirebaseService) {}
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    private readonly botService: BotService,
+  ) {}
 
   async getList(userId) {
     return await this.firebaseService.read(userId, 'days');
@@ -40,7 +43,9 @@ export class DaysService {
       });
 
       // 3. SET DAYS
-      this.firebaseService.write(userId, 'days', days);
+      await this.firebaseService.write(userId, 'days', days);
+
+      this.scheduler(userId);
     } catch (error) {
       console.error(error);
       throw new Error(error);
@@ -87,13 +92,14 @@ export class DaysService {
       const currentMinutes = new Date().getMinutes();
 
       // Уведомление о запланированной задаче
-      if (chatId && today?.tasks?.length) {
+      if (today?.tasks?.length) {
         for (const task of today.tasks) {
           if (
             currentHours === getHours(task.time) &&
             currentMinutes === getMinutes(task.time)
           ) {
             // bot.sendMessage(chatId, task.value);
+            this.botService.sendMessage(task.value); // сделать проверку что сообщение уже было отправлено
           }
         }
       }
@@ -112,7 +118,7 @@ export class DaysService {
 
         this.firebaseService.write(userId, 'days', days);
       }
-    }, 59999);
+    }, 10000); // 59999
 
     function getHours(time) {
       if (!time) return null;

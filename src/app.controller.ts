@@ -2,27 +2,6 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import * as admin from 'firebase-admin';
 
-// ТГ --- отдельный модуль с тг ботом
-
-// const TelegramBot = require('node-telegram-bot-api');
-
-// const token = process.env.TOKEN
-
-// console.log(token);
-
-// const bot = new TelegramBot(token, {
-//   polling: true
-// });
-
-// let chatId = ''  *
-
-// bot.on('text', async msg => {
-//   console.log(msg);
-//   chatId = msg.chat.id
-// })
-
-// -------------------
-
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
