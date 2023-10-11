@@ -5,20 +5,20 @@ import * as admin from 'firebase-admin';
 async function bootstrap() {
   admin.initializeApp({
     credential: admin.credential.cert({
-      type: process.env.firebase_type,
-      project_id: process.env.firebase_project_id,
-      private_key_id: process.env.firebase_private_key_id,
-      private_key: process.env.firebase_private_key.replace(/\\n/g, '\n'),
-      client_email: process.env.firebase_client_email,
-      client_id: process.env.firebase_client_id,
-      auth_uri: process.env.firebase_auth_uri,
-      token_uri: process.env.firebase_token_uri,
+      type: process.env.FIREBASE_TYPE,
+      project_id: process.env.FIREBASE_PROJECT_ID,
+      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      client_email: process.env.FIREBASE_CLIENT_EMAIL,
+      client_id: process.env.FIREBASE_CLIENT_ID,
+      auth_uri: process.env.FIREBASE_AUTH_URI,
+      token_uri: process.env.FIREBASE_TOKEN_URI,
       auth_provider_x509_cert_url:
-        process.env.firebase_auth_provider_x509_cert_url,
-      client_x509_cert_url: process.env.firebase_client_x509_cert_url,
-      universe_domain: process.env.firebase_universe_domain,
+        process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+      client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+      universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
     } as Partial<admin.ServiceAccount>),
-    databaseURL: process.env.firebase_database_URL,
+    databaseURL: process.env.FIREBASE_DATABASE_URL,
   });
 
   const app = await NestFactory.create(AppModule);
