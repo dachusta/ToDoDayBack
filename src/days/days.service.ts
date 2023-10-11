@@ -96,8 +96,8 @@ export class DaysService {
       if (
         today?.tasks?.length &&
         !(
-          currentHours === getHours(timeLastMessage.time) &&
-          currentMinutes === getMinutes(timeLastMessage.time)
+          currentHours === getHours(timeLastMessage) &&
+          currentMinutes === getMinutes(timeLastMessage)
         )
       ) {
         for (const task of today.tasks) {
