@@ -122,6 +122,12 @@ export class DaysService {
         lastMovedDate = currentDate;
 
         const pastDay = days.shift();
+
+        // Убираем отметки с выполненных задач
+        pastDay.tasks.forEach((task) => {
+          task.checked = false;
+        });
+
         days.push(pastDay);
 
         this.firebaseService.write(userId, 'days', days);
