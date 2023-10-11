@@ -137,4 +137,12 @@ export class DaysService {
       return parseInt(time.split(':')[1]);
     }
   }
+
+  async onApplicationBootstrap() {
+    const users = await this.firebaseService.getUsers();
+
+    for (const userId of users) {
+      this.scheduler(userId);
+    }
+  }
 }
