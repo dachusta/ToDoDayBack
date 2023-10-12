@@ -12,6 +12,7 @@ import { BotService } from './bot/bot.service';
     DaysModule,
     TasksModule,
     ConfigModule.forRoot({
+      envFilePath: ['.env.development', '.env'],
       isGlobal: true,
     }),
   ],
