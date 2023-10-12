@@ -11,6 +11,8 @@ export class BotService {
   constructor(private configService: ConfigService) {
     const token = configService.get<string>('TELEGRAM_TOKEN');
 
+    if (!token) return;
+
     this.bot = new TelegramBot(token, {
       polling: true,
     });
